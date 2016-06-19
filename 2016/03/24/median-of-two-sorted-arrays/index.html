@@ -1,0 +1,829 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="算法,二分法,LeetCode," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="LeetCode: 给定两个大小分别为m和n的有序数组nums1和nums2，设计一个算法，寻找两数组合并后的中位数。算法时间复杂度应为O(log(m+n))。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="寻找两个有序序列的中位数">
+<meta property="og:url" content="http://www.xzwy.space/2016/03/24/median-of-two-sorted-arrays/index.html">
+<meta property="og:site_name" content="Weiyang's blog">
+<meta property="og:description" content="LeetCode: 给定两个大小分别为m和n的有序数组nums1和nums2，设计一个算法，寻找两数组合并后的中位数。算法时间复杂度应为O(log(m+n))。">
+<meta property="og:updated_time" content="2016-03-24T06:13:58.941Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="寻找两个有序序列的中位数">
+<meta name="twitter:description" content="LeetCode: 给定两个大小分别为m和n的有序数组nums1和nums2，设计一个算法，寻找两数组合并后的中位数。算法时间复杂度应为O(log(m+n))。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 6260681607422674000,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 寻找两个有序序列的中位数 | Weiyang's blog </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?76cf9645ef40b79ba084d8674c441c18";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Weiyang's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">我有一只小狗汪汪汪...</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                寻找两个有序序列的中位数
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-03-24T11:27:11+08:00" content="2016-03-24">
+              2016-03-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据结构与算法/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构与算法</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/03/24/median-of-two-sorted-arrays/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/24/median-of-two-sorted-arrays/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="原题"><a href="#原题" class="headerlink" title="原题"></a>原题</h1><p><strong>LeetCode</strong>: <a href="https://leetcode.com/problems/median-of-two-sorted-arrays/" title="Median of two sorted arrays" target="_blank" rel="external">Median of two sorted arrays</a><br>给定两个大小分别为m和n的有序数组nums1和nums2，设计一个算法，寻找两数组合并后的中位数。算法时间复杂度应为O(log(m+n))。</p>
+<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><p>由于要求总的时间复杂度为O(log(m+n))，因此利用归并排序的思想，先排序，后求中位数的方法不适用。题目对数级的时间复杂度启发，可以联想到二分的思想。<br>设<code>length=m+n</code>，当<code>length</code>为奇数时，合并后序列中第<code>length/2+1</code>小的数即为中位数；当<code>length</code>为偶数时，合并后序列中第<code>length/2</code>和<code>length/2+1</code>的平均数即为中位数。<br>下述寻找两个有序序列合并后第k小数的方法译自原文：</p>
+<blockquote>
+<p>Assume that the number of elements in A and B are both larger than k/2, and if we compare the k/2-th smallest element in A(i.e. A[k/2-1]) and the k-th smallest element in B(i.e. B[k/2 - 1]), there are three results:<br>(Becasue k can be odd or even number, so we assume k is even number here for simplicy. The following is also true when k is an odd number.)<br>A[k/2-1] = B[k/2-1]<br>A[k/2-1] &gt; B[k/2-1]<br>A[k/2-1] &lt; B[k/2-1]<br>if A[k/2-1] &lt; B[k/2-1], that means all the elements from A[0] to A<a href="i.e. the k/2 smallest elements in A">k/2-1</a> are in the range of k smallest elements in the union of A and B. Or, in the other word, A[k/2 - 1] can never be larger than the k-th smalleset element in the union of A and B.</p>
+<p>Why?<br>We can use a proof by contradiction. Since A[k/2 - 1] is larger than the k-th smallest element in the union of A and B, then we assume it is the (k+1)-th smallest one. Since it is smaller than B[k/2 - 1], then B[k/2 - 1] should be at least the (k+2)-th smallest one. So there are at most (k/2-1) elements smaller than A[k/2-1] in A, and at most (k/2 - 1) elements smaller than A[k/2-1] in B.So the total number is k/2+k/2-2, which, no matter when k is odd or even, is surly smaller than k(since A[k/2-1] is the (k+1)-th smallest element). So A[k/2-1] can never larger than the k-th smallest element in the union of A and B if A[k/2-1] &lt; B[k/2-1]<br>Since there is such an important conclusion, we can safely drop the first k/2 element in A, which are definitaly smaller than k-th element in the union of A and B. This is also true for the A[k/2-1] &gt; B[k/2-1] condition, which we should drop the elements in B.<br>When A[k/2-1] = B[k/2-1], then we have found the k-th smallest element, that is the equal element, we can call it m. There are each (k/2-1) numbers smaller than m in A and B, so m must be the k-th smallest number. So we can call a function recursively, when A[k/2-1] &lt; B[k/2-1], we drop the elements in A, else we drop the elements in B.</p>
+<p>We should also consider the edge case, that is, when should we stop?</p>
+<ol>
+<li>When A or B is empty, we return B[k-1]( or A[k-1]), respectively;</li>
+<li>When k is 1(when A and B are both not empty), we return the smaller one of A[0] and B[0]</li>
+<li>When A[k/2-1] = B[k/2-1], we should return one of them</li>
+</ol>
+<p>In the code, we check if m is larger than n to garentee that the we always know the smaller array, for coding simplicy.</p>
+</blockquote>
+<p>假设数组nums1和nums2的元素个数都大于k/2。如果对比nums1中第k/2小的元素nums1[k/2-1](下标从0开始）和nums2中第k/2小的元素nums2[k/2-1]（下标从0开始）,可以得到以下三种结论（不论k为奇数还是偶数，下述情况同样适用，为了简化以k为偶数的情况为例）：</p>
+<ol>
+<li><p>nums1[k/2-1] = nums2[k/2-1]： 这意味着nums1中第k/2小的元素和nums2中第k/2小的元素相等，那当nums1和nums2合并后，分别有k/2-1个nums1中元素小于nums1[k/2-1]，k/2-1个nums2中元素小于nums2[k/2-1]。由于nums1[k/2-1]==nums2[k/2-1]，所以总计有k/2-1+k/2-1=k-2个元素小于nums1[k/2-1]（nums2[k/2-1]），所以nums1[k/2-1]（nums2[k/2-1]）即为所要找的新序列中第k小的数。</p>
+</li>
+<li><p>nums1[k/2-1] &lt; nums2[k/2-1]：nums1[k/2-1]一定比合并后序列中第k小的数更小，因此合并后第k小的数不可能出现在nums1[0]到nums1[k/2-1]中，可以舍弃这部分数。下面用反证法给出证明：假设nums1[k/2-1]在合并后的序列中大于第k小的数，令其为第k+1小的数。由于nums2[k/2-1]&gt;nums1[k/2-1]，故nums2[k/2-1]在合并后的序列中至少为第k+2小的数。在num1中至多有k/2-1个元素小于num1[k/2-1]，在num2中也至多有k/2-1个元素小于num1[k/2-1]，因此在合并后的序列中，总计有k/2+k/2-2&lt;k个元素小于num1[k/2-1]。故num1[k/2-1]绝不会大于合并后序列中第k小的元素。与假设num1[k/2-1]为第k+1小的数矛盾。故原命题得证。</p>
+</li>
+<li><p>nums1[k/2-1] &gt; nums2[k/2-1]：nums2[k/2-1]一定比合并后序列中第k小的数更小，因此可以舍弃num2[0]到nums2[k/2-1]这部分数，证明方法同上。</p>
+</li>
+</ol>
+<p>简言之，当num1[k/2-1]==num2[k/2-1]时，合并后序列第k小的元素即为num1[k/2-1]；当num1[k/2-1]<num2[k 2-1]时，舍弃num1中较小的元素，递归；当num1[k="" 2-1]="">num2[k/2-1]时，舍弃num2中较小的元素，递归。</num2[k></p>
+<p>算法的边界情况和停止条件：</p>
+<ol>
+<li>当num1或num2为空时，分别返回num2[k-1]或num1[k-1]；</li>
+<li>当num1和num2都不为空且<code>k==1</code>时，合并后最小的数即为num1[0]和num2[0]中的最小值；</li>
+</ol>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 寻找第k小的数，利用二分法思想</span></span><br><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">findKth</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;nums1,<span class="keyword">int</span> s1,<span class="keyword">int</span> e1,<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;nums2,<span class="keyword">int</span> s2,<span class="keyword">int</span> e2,<span class="keyword">int</span> k)</span></span>&#123;</span><br><span class="line">		<span class="comment">// num1的大小</span></span><br><span class="line">        <span class="keyword">int</span> n = e1-s1;</span><br><span class="line">		<span class="comment">// num2的大小</span></span><br><span class="line">        <span class="keyword">int</span> m = e2-s2;</span><br><span class="line">		<span class="comment">// 默认nums1的长度小于nums2的长度</span></span><br><span class="line">        <span class="keyword">if</span>(n&gt;m)&#123;</span><br><span class="line">            <span class="keyword">return</span> findKth(nums2,s2,e2,nums1,s1,e1,k);</span><br><span class="line">        &#125;</span><br><span class="line">		<span class="comment">// 算法边界</span></span><br><span class="line">        <span class="keyword">if</span>(n==<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> nums2[s2+k<span class="number">-1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(k==<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> min(nums1[s1],nums2[s2]);</span><br><span class="line">        &#125;</span><br><span class="line">		<span class="comment">// 取k/2和n的最小值，防止越界</span></span><br><span class="line">        <span class="keyword">int</span> k1=min(k/<span class="number">2</span>,n);</span><br><span class="line">        <span class="keyword">int</span> k2=k-k1;</span><br><span class="line">        <span class="keyword">if</span>(nums1[s1+k1<span class="number">-1</span>]&lt;nums2[s2+k2<span class="number">-1</span>])&#123;</span><br><span class="line">            <span class="keyword">return</span> findKth(nums1,s1+k1,e1,nums2,s2,s2+k2,k-k1);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(nums1[s1+k1<span class="number">-1</span>]&gt;nums2[s2+k2<span class="number">-1</span>])&#123;</span><br><span class="line">            <span class="keyword">return</span> findKth(nums1,s1,s1+k1,nums2,s2+k2,e2,k-k2);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> nums1[s1+k1<span class="number">-1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedianSortedArrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums1.size();</span><br><span class="line">        <span class="keyword">int</span> m = nums2.size();</span><br><span class="line">        <span class="keyword">int</span> length = n + m;</span><br><span class="line">		<span class="comment">//length%2==0</span></span><br><span class="line">        <span class="keyword">if</span>(length&amp;<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> findKth(nums1,<span class="number">0</span>,n,nums2,<span class="number">0</span>,m,length/<span class="number">2</span>+<span class="number">1</span>);    </span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0.5</span>*(findKth(nums1,<span class="number">0</span>,n,nums2,<span class="number">0</span>,m,length/<span class="number">2</span>+<span class="number">1</span>)+findKth(nums1,<span class="number">0</span>,n,nums2,<span class="number">0</span>,m,length/<span class="number">2</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag">#算法</a>
+          
+            <a href="/tags/二分法/" rel="tag">#二分法</a>
+          
+            <a href="/tags/LeetCode/" rel="tag">#LeetCode</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/19/nodejs-hang-up-on-Windows/" rel="next" title="Nodejs在Windows下无法运行">
+                <i class="fa fa-chevron-left"></i> Nodejs在Windows下无法运行
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/25/fix-installation-failed-of-scrapy-on-Windows/" rel="prev" title="解决Python爬虫框架Scrapy在Windows上的安装问题">
+                解决Python爬虫框架Scrapy在Windows上的安装问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/03/24/median-of-two-sorted-arrays/"
+           data-title="寻找两个有序序列的中位数" data-url="http://www.xzwy.space/2016/03/24/median-of-two-sorted-arrays/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars1.githubusercontent.com/u/16204743?v=3&s=460"
+               alt="Weiyang" />
+          <p class="site-author-name" itemprop="name">Weiyang</p>
+          <p class="site-description motion-element" itemprop="description">每天开开心心啦啦啦...</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+          
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ZhuWeiyang" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">我关注的小伙伴们</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://semicoder.xyz/" target="_blank">SemiCoder's Learning Logs</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://yodyu.github.io/" target="_blank">尤大鱼</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/pangjiuzala" target="_blank">XingLiu's Blog</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#原题"><span class="nav-number">1.</span> <span class="nav-text">原题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#题解"><span class="nav-number">2.</span> <span class="nav-text">题解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现"><span class="nav-number">3.</span> <span class="nav-text">实现</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Weiyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"ZhuWeiyang"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+      <script src="/vendors/ua-parser-js/dist/ua-parser.min.js"></script>
+      <script src="/js/src/hook-duoshuo.js"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML-full">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>

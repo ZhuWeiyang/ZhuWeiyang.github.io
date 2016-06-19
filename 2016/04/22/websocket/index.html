@@ -1,0 +1,890 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="websocket," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="本文主要介绍了HTML5 WebSocket的工作原理，以及其在构建实时Web应用上的突破性做法，并通过结合Tomcat和Echarts完成了显示实时数据图表的案例，充分的展示了Websocket和Echarts的高效和易用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用HTML5 WebSocket构建实时数据图表">
+<meta property="og:url" content="http://www.xzwy.space/2016/04/22/websocket/index.html">
+<meta property="og:site_name" content="Weiyang's blog">
+<meta property="og:description" content="本文主要介绍了HTML5 WebSocket的工作原理，以及其在构建实时Web应用上的突破性做法，并通过结合Tomcat和Echarts完成了显示实时数据图表的案例，充分的展示了Websocket和Echarts的高效和易用。">
+<meta property="og:image" content="http://www.xzwy.space/images/Polling.png">
+<meta property="og:image" content="http://www.xzwy.space/images/LongPolling.png">
+<meta property="og:image" content="http://www.xzwy.space/images/poll-ws-compare.gif">
+<meta property="og:image" content="http://www.xzwy.space/images/Sequence.png">
+<meta property="og:image" content="http://www.xzwy.space/images/JSR356.gif">
+<meta property="og:image" content="http://www.xzwy.space/images/echarts_architecture.png">
+<meta property="og:image" content="http://www.xzwy.space/images/websocket_stepbystep/1.png">
+<meta property="og:image" content="http://www.xzwy.space/images/websocket_stepbystep/2.png">
+<meta property="og:image" content="http://www.xzwy.space/images/websocket_stepbystep/3.png">
+<meta property="og:image" content="http://www.xzwy.space/images/websocket_stepbystep/4.png">
+<meta property="og:updated_time" content="2016-04-22T02:14:10.964Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用HTML5 WebSocket构建实时数据图表">
+<meta name="twitter:description" content="本文主要介绍了HTML5 WebSocket的工作原理，以及其在构建实时Web应用上的突破性做法，并通过结合Tomcat和Echarts完成了显示实时数据图表的案例，充分的展示了Websocket和Echarts的高效和易用。">
+<meta name="twitter:image" content="http://www.xzwy.space/images/Polling.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 6260681607422674000,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 使用HTML5 WebSocket构建实时数据图表 | Weiyang's blog </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?76cf9645ef40b79ba084d8674c441c18";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Weiyang's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">我有一只小狗汪汪汪...</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用HTML5 WebSocket构建实时数据图表
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-04-22T09:35:07+08:00" content="2016-04-22">
+              2016-04-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/小项目/" itemprop="url" rel="index">
+                    <span itemprop="name">小项目</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/22/websocket/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/22/websocket/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文主要介绍了HTML5 WebSocket的工作原理，以及其在构建实时Web应用上的突破性做法，并通过结合<a href="https://tomcat.apache.org/" target="_blank" rel="external">Tomcat</a>和<a href="http://echarts.baidu.com/" target="_blank" rel="external">Echarts</a>完成了显示实时数据图表的案例，充分的展示了<a href="http://www.websocket.org" target="_blank" rel="external">Websocket</a>和<a href="http://echarts.baidu.com/" target="_blank" rel="external">Echarts</a>的高效和易用。</p>
+<a id="more"></a>
+<h1 id="什么是WebSocket"><a href="#什么是WebSocket" class="headerlink" title="什么是WebSocket?"></a>什么是WebSocket?</h1><p>HTML5 WebSocket是HTML5中最新引入的下一代<code>客户端/服务器</code>异步通信协议（以下简称WebSocket）。其约定了一个通信规范，通过一个基于HTTP协议的握手机制，使得客户端（浏览器）和服务器（Web Server）之间能够建立起一个类似于TCP的连接，从而方便了两者之间的通信。</p>
+<h1 id="WebSocket的作用"><a href="#WebSocket的作用" class="headerlink" title="WebSocket的作用"></a>WebSocket的作用</h1><p>在WebSocket出现以前，传统的客户端（浏览器）和服务器交互的方式就是客户端向服务器发送一个请求（Request），服务器接收到请求后进行相应处理，并把处理结果（Response）返回给客户端，然后客户端浏览器将收到的信息呈现出来。这种方式针对于非频繁变化的应用内容来说基本可以满足其需求，然而对于实时性要求较高的设备健康监控、证券资讯信息、在线游戏等应用来说，就显得力不从心了。因此在传统的Web应用开发过程中，通常有两大类客户端和服务器通信技术来保证Web应用的实时性，一类是轮询技术，另一类是长轮询机制。<br>下面我们逐一介绍一下这两种技术：</p>
+<p><strong>轮询（Polling）</strong><br>轮询是最早也是最为简单的一种实现实时Web应用的方案。流程如<code>图1</code>所示。客户端（浏览器）以固定间隔时间周期地向服务器发送HTTP的GET请求，服务器收到GET请求后，就根据请求进行相应处理，把处理结果返回给客户端（浏览器）。浏览器获得这些数据后，就将其显示出来。然后客户端（浏览器）再定期重复这一过程。这样虽然能够满足实时性需求，但仍然存在一些问题。例如在某段时间内服务器端没有更新的数据，但是客户端（浏览器）仍然需要定时地发送GET请求过来询问，那么Web服务器就会把以前的老数据再次传送过来，客户端（浏览器）把这些没有变化的数据再次显示出来，显然这样既浪费了网络带宽，又浪费了CPU时间。如果把客户端的GET请求周期变长，一定程度上能够缓解这一问题，但在服务端数据更新频繁时，客户端（浏览器）获取的数据实时性又得不到保证。因此轮询是一种非常低效的实时性方案。<br><img src="/images/Polling.png" alt="轮询流程"></p>
+<center><strong>图1</strong> 轮询流程</center>
+
+<p><strong>长轮询（Long Polling）</strong><br>长轮询是对传统定时轮询的一种改进和提高，其流程如<code>图2</code>所示。当客户端（浏览器）发送GET请求到服务器，若服务器端有新数据要传送，则立即把数据返回给客户端（浏览器），浏览器收到数据后，显示给客户，并立即再次发送GET请求给服务器。若服务器收到GET请求时没有新的数据要发送，则服务器不会立即发送响应（Response）给客户端（浏览器），而是把这个请求保持住，等到有新数据需要发送时，再响应这个请求。如果服务器在一段时间内都没有新数据需要发送，则这个GET请求就会超时。客户端（浏览器）收到超时消息时，也会立即再次发送一个新的GET请求给服务器。</p>
+<p>长轮询虽然一定程度上缓解了传统轮询方式低效、CPU占用率和网络带宽占用率高等问题，当服务器端没有数据更新的时候，连接会保持一段时间周期直到数据或状态改变或者时间过期，通过这种机制来减少无效的客户端和服务器间的交互。当服务器端的数据更新速率很高时，服务器在传送一个数据包给客户端（浏览器）后必须等待客户端的下一个GET请求到来，才能够传送第二个更新的数据包给浏览器。这样浏览器显示实时数据最快的时间为2×RTT（往返时间），如果网路出现拥塞，这样的数据更新速度是用户不可接受的，这种机制和定时轮询比较起来没有本质上的性能的提高。另外，由于HTTP数据包的头部数据量往往很大（通常有400多个字节），但是真正被服务器和客户端需要的数据却很少（有时只有10个字节左右），这样的数据包在网络上周期性的传输，难免对网络带宽是一种浪费。<br><img src="/images/LongPolling.png" alt="长轮询流程"></p>
+<center><strong>图2</strong> 长轮询流程</center>
+
+<p>而WebSocket的提出，正是为了解决传统轮询方式的低效问题。WebSocket协议是一种双向通信协议，它建立在TCP之上，同HTTP协议一样通过TCP协议来传输数据，但是它和HTTP协议有两个不同点：</p>
+<ul>
+<li>WebSocket是一种双向通信协议，在建立连接后，WebSocket服务器和浏览器都能主动的向对方发送或接收数据。不同于Socket，WebSocket是建立在Web基础上的模拟Socket协议。</li>
+<li>WebSocket需要通过握手连接，类似于TCP协议，它也需要客户端和服务器端进行握手连接，连接成功后才能相互通信。</li>
+</ul>
+<p>浏览器通过<code>JavaScript</code>向服务器发出建立WebSocket连接的请求，连接建立以后，客户端和服务器端就可以通过TCP连接直接交换数据。因为WebSocket连接本质上就是一个TCP连接，所以在数据传输的稳定性和数据传输量的大小方面，和轮询以及长轮询技术比较，具有很大的性能优势。<a href="http://www.websocket.org" target="_blank" rel="external">Websocket.org</a>对传统的轮询方式和 WebSocket 调用方式作了一个详细的测试和比较，将一个简单的Web 用分别用轮询方式和 WebSocket方式来实现，测试结果如<code>图3</code>所示：<br><img src="/images/poll-ws-compare.gif" alt="轮询和WebSocket方式对比"></p>
+<center><strong>图3</strong> 轮询和WebSocket方式对比</center>
+
+<h1 id="WebSocket握手协议"><a href="#WebSocket握手协议" class="headerlink" title="WebSocket握手协议"></a>WebSocket握手协议</h1><p>WebSocket协议本质上是一个基于TCP的协议，因此它也需要经过握手才能完成连接，<code>图4</code>是一个简单的建立WebSocket连接的时序图。<br><img src="/images/Sequence.png" alt="WebSocket握手时序图"></p>
+<center><strong>图4</strong> WebSocket握手时序图</center>
+
+<p>在浏览器和服务器建立起TCP连接后，为了建立起一个WebSocket连接，客户端（浏览器）首先要向服务器发起一个HTTP请求，例如：<br><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">ws://localhost:8080/websocketecharts/mywebsocket</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: localhost:8080</span><br><span class="line"><span class="attribute">Connection</span>: Upgrade</span><br><span class="line"><span class="attribute">Pragma</span>: no-cache</span><br><span class="line"><span class="attribute">Cache-Control</span>: no-cache</span><br><span class="line"><span class="attribute">Upgrade</span>: websocket</span><br><span class="line"><span class="attribute">Origin</span>: http://127.0.0.1:8080</span><br><span class="line"><span class="attribute">Sec-WebSocket-Version</span>: 13</span><br><span class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate, sdch</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-CN,zh;q=0.8</span><br><span class="line"><span class="attribute">Sec-WebSocket-Key</span>: ST45RphmIgcWFeetg5z8RA==</span><br><span class="line"><span class="attribute">Sec-WebSocket-Extensions</span>: permessage-deflate; client_max_window_bits</span><br></pre></td></tr></table></figure></p>
+<p>这个GET请求和普通的HTTP GET请求有所不同，它包含了一些附加头信息，其中<code>Upgrade: websocket</code>表示这是一个申请将HTTP协议升级为WebSocket协议的请求。我们可以看到<code>Sec-WebSocket-Version: 13</code>即Chrome浏览器选择的WebSocket版本为13，即draft-hixie-thewebsocketprotocol-76描述的WebSocket协议。这是目前比较主流的WebSocket协议，在Chrome、FireFox、Opera等现代浏览器上都有了较好的支持。WebSocket服务器收到浏览器发送来的握手请求后，如果数据包数据和格式正确，客户端和服务器的协议版本号匹配，就接受本次握手连接，并给出相应的数据回复，同样回复的数据包也是基于HTTP协议传输，例如：<br><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">101</span> Switching Protocols</span><br><span class="line"><span class="attribute">Server</span>: Apache-Coyote/1.1</span><br><span class="line"><span class="attribute">Upgrade</span>: websocket</span><br><span class="line"><span class="attribute">Connection</span>: upgrade</span><br><span class="line"><span class="attribute">Sec-WebSocket-Accept</span>: EFSiv8xq/5gvEJJSgTzDCW4wEzk=</span><br><span class="line"><span class="attribute">Sec-WebSocket-Extensions</span>: permessage-deflate;client_max_window_bits=15</span><br><span class="line"><span class="attribute">Date</span>: Mon, 04 Jan 2016 13:43:32 GMT</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>Sec-WebSocket-Accept</code>，就是把客户端上报的<code>Sec-WebSocket-Key</code>拼上一段<code>GUID: 258EAFA5-E914-47DA-95CA-C5AB0DC85B11</code>，拿这个字符串做SHA-1 hash计算，然后再把得到的结果通过base64加密，最后在返回给客户端。如此客户端和服务器端的WebSocket连接就建立起来了，双方就可以通过这个连接通道自由的传递信息，并且这个连接会持续存在直到客户端或者服务器端的某一方主动的关闭连接。</p>
+<h1 id="WebSocket-浏览器接口"><a href="#WebSocket-浏览器接口" class="headerlink" title="WebSocket 浏览器接口"></a>WebSocket 浏览器接口</h1><p>WebSocket在客户端的JavaScript接口十分简单，它为前端开发人员提供了高效易用的实现方案，定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[Constructor(in DOMString url, in optional DOMString protocol)] </span><br><span class="line">	interface WebSocket &#123; </span><br><span class="line">	readonly attribute DOMString URL;                    //WebSocket服务入口点</span><br><span class="line">	// 连接状态 </span><br><span class="line">	const unsigned short CONNECTING = 0;                 //正在连接</span><br><span class="line">	const unsigned short OPEN = 1;                       //已连接</span><br><span class="line">	const unsigned short CLOSED = 2;                     //已关闭</span><br><span class="line">	readonly attribute unsigned short readyState; </span><br><span class="line">	readonly attribute unsigned long bufferedAmount; </span><br><span class="line">	// 网络事件</span><br><span class="line">	attribute Function onopen;                           //连接后触发</span><br><span class="line">	attribute Function onmessage;                        //收到服务端消息时触发</span><br><span class="line">	attribute Function onclose;                          //连接关闭后触发</span><br><span class="line">    	attribute Function onerror;                          //连接发生错误时触发</span><br><span class="line">	// 方法</span><br><span class="line">	boolean send(in DOMString data);                     //向服务端发送数据</span><br><span class="line">	void close();                                        //关闭连接</span><br><span class="line">&#125;; </span><br><span class="line">WebSocket implements EventTarget;</span><br></pre></td></tr></table></figure></p>
+<p>并且WebSocket在现代浏览器中都得到了支持，具体支持情况如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>浏览器</th>
+<th style="text-align:center">支持版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Internet Explorer</td>
+<td style="text-align:center">IE10+</td>
+</tr>
+<tr>
+<td>Chrome</td>
+<td style="text-align:center">Chrome4+</td>
+</tr>
+<tr>
+<td>Firefox</td>
+<td style="text-align:center">FF4+</td>
+</tr>
+<tr>
+<td>Opera</td>
+<td style="text-align:center">Opera10+</td>
+</tr>
+<tr>
+<td>Safari</td>
+<td style="text-align:center">Safari5+</td>
+</tr>
+</tbody>
+</table>
+<h1 id="JSR-356标准"><a href="#JSR-356标准" class="headerlink" title="JSR 356标准"></a><a href="https://jcp.org/en/jsr/detail?id=356" target="_blank" rel="external">JSR 356标准</a></h1><p>JSR 356标准定义了在Java平台上支持WebSocket编程API容器的要求。每个符合JSR 356标准的容器都必须实现这些API，当Java开发者想要使用这些API来进行服务端和客户端程序，他们无需关心WebSocket的底层实现是什么。这是一个巨大的优点，它可以避免被绑定到一个固定的供应商，以便有更多的选择、自由的库和应用服务器。JSR 356是J2EE 7标准的一部分。因此，所有兼容J2EE 7的应用服务器都将有一个遵循JSR 356标准的WebSocket协议实现。<code>图5</code>给出了JSR 356标准的一种典型应用，Java开发的客户端程序和服务端程序都依赖于JSR 356标准定义的API，而WebSocket的具体底层实现则由具体容器负责。<br><img src="/images/JSR356.gif" alt="JSR356"></p>
+<p><center><strong>图5</strong> JSR 356标准的典型应用</center><br>根据JSR 356标准，WebSocket API的调用可以继承<code>javax.websocket.Endpoint</code>类，也可以使用注解方式，下面给出注解方式的服务器端API调用示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ServerEndpoint</span>(value = <span class="string">"/websocket/&#123;user&#125;"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyWebSocket</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> Session session;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger sysLogger = Logger.getLogger(<span class="string">"sysLog"</span>);</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@OnOpen</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onOpen</span><span class="params">(Session session,  @PathParam(value = <span class="string">"user"</span>)</span>String user) </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.session = session;</span><br><span class="line">		sysLogger.info(<span class="string">"*** WebSocket opened from sessionId "</span> + session.getId());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@OnMessage</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(String message)</span> </span>&#123;</span><br><span class="line">		sysLogger.info(<span class="string">"*** WebSocket Received from sessionId "</span> + <span class="keyword">this</span>.session.getId() + <span class="string">": "</span> + message);</span><br><span class="line">		session.getBasicRemote().sendText(<span class="string">"Echo from Server: "</span> + message);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@OnClose</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClose</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		sysLogger.info(<span class="string">"*** WebSocket closed from sessionId "</span> + <span class="keyword">this</span>.session.getId());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@OnError</span> </span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Session session, Throwable t)</span> </span>&#123;</span><br><span class="line">		sysLogger.info(<span class="string">"*** WebSocket occured error"</span> + t.getMessage());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>每当与一个客户端建立连接后，都会分配一个与之关联的session，但这个session并非HttpSession。整个调用API都是通过注解驱动的方法，下面逐一讲解各注解的作用：</p>
+<ul>
+<li>@ServerEndpoint(url): 服务端WebSocket入口点</li>
+<li>@OnOpen: WebSocket连接建立时，会调用注解方法</li>
+<li>@OnMessage: 收到消息时，会调用注解方法</li>
+<li>@OnClose: WebSocket连接关闭时，会调用注解方法</li>
+<li>@OnError: WebSocket连接发生错误时，会调用注解方法</li>
+</ul>
+<h1 id="Echarts"><a href="#Echarts" class="headerlink" title="Echarts"></a>Echarts</h1><p>根据百度商业前端数据可视化团队的官方定义，Echarts（Enterprise Charts 商业产品图表库）提供商业产品常用图表，底层基于<a href="http://ecomfe.github.io/zrender/" target="_blank" rel="external">ZRender</a>（一个全新的轻量级canvas类库），创建了坐标系，图例，提示，工具箱等基础组件，并在此上构建出折线图、柱状图、散点图、K线图、饼图、雷达图、地图、和弦图、力导向布局图、仪表盘以及漏斗图，同时支持任意维度的堆积和多图表混合展现。其基本架构如<code>图6</code>所示。<br><img src="/images/echarts_architecture.png" alt="echarts_architecture"></p>
+<p><center><strong>图6</strong> Echarts架构</center><br>在后文的实时数据图表案例中，会使用Echarts作为数据可视化的引擎，在客户端（浏览器）中实时显示数据，其基本用法可参照<a href="http://echarts.baidu.com/doc/start.html" target="_blank" rel="external">5分钟上手写ECharts的第一个图表</a>，<a href="http://echarts.baidu.com/doc/example.html" target="_blank" rel="external">Echarts图表示例</a>以及<a href="http://echarts.baidu.com/doc/doc.html" target="_blank" rel="external">官方文档</a>。</p>
+<h1 id="实时数据图表案例"><a href="#实时数据图表案例" class="headerlink" title="实时数据图表案例"></a>实时数据图表案例</h1><p>本例基于以下环境调试通过：</p>
+<blockquote>
+<ul>
+<li>Windows 7 x64</li>
+<li>Apache Tomcat 7.0.67</li>
+<li>Eclipse Java EE IDE Luna 4.4.2</li>
+<li>Google Chrome 47.0.2525.106 m</li>
+</ul>
+</blockquote>
+<p><strong>1.</strong> 打开Eclipse，新建Dynamic Web Project项目。<br><img src="/images/websocket_stepbystep/1.png" alt="websocket_sbs1"><br><strong>2.</strong> 使用默认设置创建项目（创建项目前已经配置好Tomcat运行环境）<br><img src="/images/websocket_stepbystep/2.png" alt="websocket_sbs2"><br><strong>3.</strong> 创建一个MyWebSocket服务类，向连接的客户端持续发送服务器CPU和内存使用率信息。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.net.SocketException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.websocket.OnClose;</span><br><span class="line"><span class="keyword">import</span> javax.websocket.OnError;</span><br><span class="line"><span class="keyword">import</span> javax.websocket.OnMessage;</span><br><span class="line"><span class="keyword">import</span> javax.websocket.OnOpen;</span><br><span class="line"><span class="keyword">import</span> javax.websocket.Session;</span><br><span class="line"><span class="keyword">import</span> javax.websocket.server.ServerEndpoint;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 遵循JSR356标准</span></span><br><span class="line"><span class="comment">// WebSocket服务入口点</span></span><br><span class="line"><span class="meta">@ServerEndpoint</span>(value = <span class="string">"/mywebsocket"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyWebSocket</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Session session;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@OnOpen</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">open</span><span class="params">(Session session)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.session = session;</span><br><span class="line">        System.out.println(<span class="string">"*** 客户端请求连接，SessionID="</span> + session.getId());</span><br><span class="line">        StringBuilder sb = <span class="keyword">null</span>;</span><br><span class="line">        String s;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 构造一个Json字符串，例如&#123;"cpu": 1.2, "memory": 3.6&#125;</span></span><br><span class="line">                sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">                sb.append(<span class="string">"&#123;\"cpu\": "</span>);</span><br><span class="line">                s = InfoGather.getCpuPerc();</span><br><span class="line">                s = s.substring(<span class="number">0</span>, s.length() - <span class="number">1</span>);</span><br><span class="line">                sb.append(s);</span><br><span class="line">                sb.append(<span class="string">",\"memory\": "</span>);</span><br><span class="line">                s = InfoGather.getMemoryUsedPerc();</span><br><span class="line">                s = s.substring(<span class="number">0</span>, s.length() - <span class="number">1</span>);</span><br><span class="line">                sb.append(s);</span><br><span class="line">                sb.append(<span class="string">"&#125;"</span>);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 发送给客户端</span></span><br><span class="line">                session.getBasicRemote().sendText(sb.toString());</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                <span class="comment">// 发生错误则停止发送</span></span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 每隔2秒发送一次数据</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                <span class="comment">// 发生错误则停止发送</span></span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@OnMessage</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inMessage</span><span class="params">(String message)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"从客户端收到消息："</span> + message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@OnClose</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">end</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"*** 客户端关闭连接，SessionID="</span> + <span class="keyword">this</span>.session.getId());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@OnError</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Session session, Throwable t)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Most likely cause is a user closing their browser. Check to see if</span></span><br><span class="line">        <span class="comment">// the root cause is SocketException and if it is ignore it.</span></span><br><span class="line">        <span class="comment">// Protect against infinite loops.</span></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        Throwable root = t;</span><br><span class="line">        <span class="keyword">while</span> (root.getCause() != <span class="keyword">null</span> &amp;&amp; count &lt; <span class="number">20</span>) &#123;</span><br><span class="line">            root = root.getCause();</span><br><span class="line">            count++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (root <span class="keyword">instanceof</span> SocketException) &#123;</span><br><span class="line">            <span class="comment">// Assume this is triggered by the user closing their browser and</span></span><br><span class="line">            <span class="comment">// ignore it.</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            t.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>onError(Session session, Throwable t)</code>方法主要捕获和处理客户端意外关闭连接导致的WebSocket错误。<code>open(Session session)</code>方法中调用的InfoGather.getCpuPerc()和InfoGather.getMemoryUsedPerc()是<a href="http://sigar.hyperic.com" target="_blank" rel="external">sigar</a>基础上封装的方法，用于获取当前服务器CPU和内存使用率。InfoGather类实现如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.hyperic.sigar.CpuPerc;</span><br><span class="line"><span class="keyword">import</span> org.hyperic.sigar.FileSystem;</span><br><span class="line"><span class="keyword">import</span> org.hyperic.sigar.FileSystemUsage;</span><br><span class="line"><span class="keyword">import</span> org.hyperic.sigar.Sigar;</span><br><span class="line"><span class="keyword">import</span> org.hyperic.sigar.SigarException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InfoGather</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Sigar sigar = <span class="keyword">new</span> Sigar();</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">InfoGather</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getCpuPerc</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> CpuPerc.format(sigar.getCpuPerc().getCombined());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SigarException e) &#123;</span><br><span class="line">            <span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getMemoryUsedPerc</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> PercFormat(sigar.getMem().getActualUsed()*<span class="number">100.0</span>/sigar.getMem().getTotal());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SigarException e) &#123;</span><br><span class="line">            <span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">PercFormat</span><span class="params">(<span class="keyword">double</span> d)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> String.format(<span class="string">"%.1f%%"</span>,d);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>4.</strong> 从<a href="http://echarts.baidu.com/" target="_blank" rel="external">http://echarts.baidu.com/</a>下载Echarts，并把其中的dist复制到WebContent目录下。<br><img src="/images/websocket_stepbystep/3.png" alt="websocket_sbs3"></p>
+<p><strong>5.</strong> 编写JavaScript脚本，加载Echarts折线图。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- ECharts单文件引入 --&gt;</span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"dist/echarts.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;script type=<span class="string">"text/javascript"</span>&gt;</span><br><span class="line">	<span class="keyword">var</span> myChart = <span class="literal">null</span>;</span><br><span class="line">	<span class="comment">// 路径配置</span></span><br><span class="line">	<span class="built_in">require</span>.config(&#123;</span><br><span class="line">		paths: &#123;</span><br><span class="line">			echarts: <span class="string">'dist'</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 使用</span></span><br><span class="line">	<span class="built_in">require</span>(</span><br><span class="line">		[</span><br><span class="line">			<span class="string">'echarts'</span>,</span><br><span class="line">			<span class="string">'echarts/chart/line'</span> <span class="comment">// 使用折线图就加载line模块，按需加载</span></span><br><span class="line">		],</span><br><span class="line">		<span class="function"><span class="keyword">function</span> (<span class="params">ec</span>) </span>&#123;</span><br><span class="line">			<span class="comment">// 基于准备好的dom，初始化echarts图表</span></span><br><span class="line">			myChart = ec.init(<span class="built_in">document</span>.getElementById(<span class="string">'main'</span>)); </span><br><span class="line">			</span><br><span class="line">			<span class="keyword">var</span> option = &#123;</span><br><span class="line">				title : &#123;</span><br><span class="line">					text: <span class="string">'实时数据展示Demo'</span>,</span><br><span class="line">				&#125;,</span><br><span class="line">				tooltip : &#123;</span><br><span class="line">					trigger: <span class="string">'axis'</span></span><br><span class="line">				&#125;,</span><br><span class="line">				legend: &#123;</span><br><span class="line">					data:[<span class="string">'CPU'</span>,<span class="string">'内存'</span>]</span><br><span class="line">				&#125;,</span><br><span class="line">				toolbox: &#123;</span><br><span class="line">					show : <span class="literal">false</span></span><br><span class="line">				&#125;,</span><br><span class="line">				calculable : <span class="literal">false</span>,</span><br><span class="line">				xAxis : [</span><br><span class="line">					&#123;</span><br><span class="line">						<span class="comment">// x轴为类目型</span></span><br><span class="line">						type : <span class="string">'category'</span>,</span><br><span class="line">						<span class="comment">// 顶格显示</span></span><br><span class="line">						boundaryGap : <span class="literal">false</span>,</span><br><span class="line">						<span class="comment">// x轴标签全部显示</span></span><br><span class="line">						axisLabel : &#123;</span><br><span class="line">							interval : <span class="number">0</span></span><br><span class="line">						&#125;,</span><br><span class="line">						<span class="comment">// 初始化数据标签为空</span></span><br><span class="line">						data : [<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>, <span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>],</span><br><span class="line">					&#125;</span><br><span class="line">				],</span><br><span class="line">				yAxis : [</span><br><span class="line">					&#123;</span><br><span class="line">						type : <span class="string">'value'</span>,</span><br><span class="line">						axisLabel : &#123;</span><br><span class="line">							formatter: <span class="string">'&#123;value&#125; %'</span></span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line">				],</span><br><span class="line">				series : [</span><br><span class="line">					&#123;</span><br><span class="line">						name:<span class="string">'CPU'</span>,</span><br><span class="line">						type:<span class="string">'line'</span>,</span><br><span class="line">						<span class="comment">// 初始化CPU数据为空</span></span><br><span class="line">						data:[<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>],</span><br><span class="line">					&#125;,</span><br><span class="line">					&#123;</span><br><span class="line">						name:<span class="string">'内存'</span>,</span><br><span class="line">						type:<span class="string">'line'</span>,</span><br><span class="line">						<span class="comment">// 初始化内存数据为空</span></span><br><span class="line">						data:[<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>,<span class="string">'-'</span>],</span><br><span class="line">					&#125;</span><br><span class="line">				]</span><br><span class="line">			&#125;;</span><br><span class="line">	</span><br><span class="line">			<span class="comment">// 为echarts对象加载数据 </span></span><br><span class="line">			myChart.setOption(option); </span><br><span class="line">			<span class="comment">// 自适应浏览器宽度</span></span><br><span class="line">			<span class="built_in">window</span>.onresize = myChart.resize;</span><br><span class="line">		&#125;</span><br><span class="line">	);</span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure></p>
+<p><strong>6.</strong> 编写JavaScript脚本，建立WebSocket客户端，并向Echarts折线图实时添加数据。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">"text/javascript"</span>&gt;</span><br><span class="line">	<span class="keyword">var</span> ws = <span class="literal">null</span>;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">startWebSocket</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="comment">// 兼容不同的浏览器和WebSocket</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="string">'WebSocket'</span> <span class="keyword">in</span> <span class="built_in">window</span>)</span><br><span class="line">			ws = <span class="keyword">new</span> WebSocket(<span class="string">"ws://localhost:8080/websocketecharts/mywebsocket"</span>);</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">'MozWebSocket'</span> <span class="keyword">in</span> <span class="built_in">window</span>)</span><br><span class="line">			ws = <span class="keyword">new</span> MozWebSocket(<span class="string">"ws://localhost:8080/websocketecharts/mywebsocket"</span>);</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			alert(<span class="string">"当前浏览器不支持websocket"</span>);</span><br><span class="line"></span><br><span class="line">		ws.onmessage = <span class="function"><span class="keyword">function</span>(<span class="params">evt</span>) </span>&#123; <span class="comment">// 消息接收方法</span></span><br><span class="line">			<span class="comment">// 以当前时间作为x轴数据标签</span></span><br><span class="line">			axisData = (<span class="keyword">new</span> <span class="built_in">Date</span>()).toLocaleTimeString().replace(<span class="regexp">/^\D*/</span>,<span class="string">''</span>);</span><br><span class="line">			<span class="comment">// 将接收到的json字符串转化为json对象，一定要加'('和')'</span></span><br><span class="line">			<span class="keyword">var</span> lastData = <span class="built_in">eval</span>(<span class="string">"("</span>+evt.data+<span class="string">")"</span>);</span><br><span class="line">			<span class="comment">// 动态数据接口 addData</span></span><br><span class="line">			myChart.addData([</span><br><span class="line">				[</span><br><span class="line">					<span class="number">0</span>,        <span class="comment">// 系列索引</span></span><br><span class="line">					lastData.cpu, <span class="comment">// 新增数据</span></span><br><span class="line">					<span class="literal">false</span>,    <span class="comment">// 新增数据是否从队列头部插入</span></span><br><span class="line">					<span class="literal">false</span>,    <span class="comment">// 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头</span></span><br><span class="line">					axisData  <span class="comment">// 坐标轴标签</span></span><br><span class="line">				],</span><br><span class="line">				[</span><br><span class="line">					<span class="number">1</span>,        <span class="comment">// 系列索引</span></span><br><span class="line">					lastData.memory, <span class="comment">// 新增数据</span></span><br><span class="line">					<span class="literal">false</span>,    <span class="comment">// 新增数据是否从队列头部插入</span></span><br><span class="line">					<span class="literal">false</span>,    <span class="comment">// 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头</span></span><br><span class="line">				]</span><br><span class="line">			]);</span><br><span class="line">		&#125;;</span><br><span class="line"></span><br><span class="line">		ws.onclose = <span class="function"><span class="keyword">function</span>(<span class="params">evt</span>) </span>&#123;</span><br><span class="line">			<span class="comment">//alert("close");</span></span><br><span class="line">		&#125;;</span><br><span class="line"></span><br><span class="line">		ws.onopen = <span class="function"><span class="keyword">function</span>(<span class="params">evt</span>) </span>&#123;</span><br><span class="line">			<span class="comment">//alert("open");</span></span><br><span class="line">		&#125;;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">window</span>.onbeforeunload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="comment">// 关闭浏览器时自动关闭websocket连接</span></span><br><span class="line">		ws.close();</span><br><span class="line">	&#125;;</span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure></p>
+<p><strong>7.</strong> 创建index.html页面，用于呈现数据图表<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Type"</span> <span class="attr">content</span>=<span class="string">"text/html; charset=UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>实时数据展示Demo<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- Echarts脚本和WebSocket脚本 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined">...</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 脚本结束 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span> <span class="attr">onload</span>=<span class="string">"startWebSocket()"</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 为ECharts准备一个具备大小（宽高）的Dom --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"main"</span> <span class="attr">style</span>=<span class="string">"height:400px"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>8.</strong> 启动Tomcat服务器，在Chrome浏览器中打开<a href="http://localhost:8080/websocketecharts/index.html" target="_blank" rel="external">http://localhost:8080/websocketecharts/index.html</a>。<br><img src="/images/websocket_stepbystep/4.png" alt="websocket_sbs4"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文介绍了HTML5 WebSocket的提出背景和所解决的问题，并介绍了WebSocket握手规范和客户端接口，以及Java的WebSocket规范。同时基于WebSocket和Echarts完成了实时数据图表显示的案例。随着HTML5的大力推广，各大现代浏览器都对WebSocket有着良好的支持。在企业级应用开发中，健康检查、系统监控类Web应用对实时性要求较高，应当使用WebSocket来代替传统Web实时性解决方案，以期取得更好的效果。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/websocket/" rel="tag">#websocket</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/13/news-classifier/" rel="next" title="模拟新闻自动分类器">
+                <i class="fa fa-chevron-left"></i> 模拟新闻自动分类器
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/04/22/websocket/"
+           data-title="使用HTML5 WebSocket构建实时数据图表" data-url="http://www.xzwy.space/2016/04/22/websocket/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars1.githubusercontent.com/u/16204743?v=3&s=460"
+               alt="Weiyang" />
+          <p class="site-author-name" itemprop="name">Weiyang</p>
+          <p class="site-description motion-element" itemprop="description">每天开开心心啦啦啦...</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+          
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ZhuWeiyang" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">我关注的小伙伴们</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://semicoder.xyz/" target="_blank">SemiCoder's Learning Logs</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://yodyu.github.io/" target="_blank">尤大鱼</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/pangjiuzala" target="_blank">XingLiu's Blog</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是WebSocket"><span class="nav-number">1.</span> <span class="nav-text">什么是WebSocket?</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#WebSocket的作用"><span class="nav-number">2.</span> <span class="nav-text">WebSocket的作用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#WebSocket握手协议"><span class="nav-number">3.</span> <span class="nav-text">WebSocket握手协议</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#WebSocket-浏览器接口"><span class="nav-number">4.</span> <span class="nav-text">WebSocket 浏览器接口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JSR-356标准"><span class="nav-number">5.</span> <span class="nav-text">JSR 356标准</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Echarts"><span class="nav-number">6.</span> <span class="nav-text">Echarts</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实时数据图表案例"><span class="nav-number">7.</span> <span class="nav-text">实时数据图表案例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Weiyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"ZhuWeiyang"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+      <script src="/vendors/ua-parser-js/dist/ua-parser.min.js"></script>
+      <script src="/js/src/hook-duoshuo.js"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML-full">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>
